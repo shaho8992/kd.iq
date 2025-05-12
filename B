@@ -1,0 +1,76 @@
+% Parameters
+A0 = 0; % Amplitude for bit 0
+A1 = 1; % Amplitude for bit 1
+
+% BASK Modulation
+amplitudes = message_expanded * (A1 - A0) + A0;
+signal = amplitudes .* cos(2 * pi * fc * t_full);
+
+% Plot
+subplot(3, 1, 1);
+stairs(repelem(message, length(t)));
+title('Message Signal');
+subplot(3, 1, 2);
+plot(signal);
+title('BASK Modulated Signal');
+-----------------------------------------------------------
+
+
+% BPSK Modulation
+signal = cos(2 * pi * fc * t_full + repelem(pi * (1 - message), length(t)));
+
+% Plot
+subplot(3, 1, 1);
+stairs(repelem(message, length(t)));
+title('Message Signal');
+subplot(3, 1, 2);
+plot(signal);
+title('BPSK Modulated Signal');
+--------------------------------------------------------------------------------
+
+
+% BFSK Modulation
+frequencies = message_expanded * (f1 - f0) + f0;
+signal = cos(2 * pi * frequencies .* t_full);
+
+% Plot
+subplot(3, 1, 1);
+stairs(repelem(message, length(t)));
+title('Message Signal');
+subplot(3, 1, 2);
+plot(signal);
+title('BFSK Modulated Signal');
+------------------------------------------------------------------------------
+
+
+% Parameters
+numBits = 1000; % Number of bits
+data = randi([0 1], numBits, 1); % Generate random binary data
+
+% Ensure the number of bits is even (pad with a 0 if odd)
+data = [data; 0] * mod(numBits, 2);
+
+% Map bits to QPSK symbols
+I = 2 * data(1:2:numBits) - 1; % In-phase component (-1 or 1)
+Q = 2 * data(2:2:numBits) - 1; % Quadrature component (-1 or 1)
+symbols = I + 1j * Q; % Combine into QPSK symbols
+
+% Add noise (AWGN channel)
+SNR_dB = 5; % Signal-to-Noise Ratio in dB (lower SNR for more errors)
+noise = (1/sqrt(2)) * (randn(size(symbols)) + 1j * randn(size(symbols))) / 10^(SNR_dB/20);
+rxSymbols = symbols + noise; % Received symbols with noise
+
+% Demodulation
+demodI = real(rxSymbols) > 0; % Decision on I
+demodQ = imag(rxSymbols) > 0; % Decision on Q
+
+% Map back to binary data
+receivedData = zeros(numBits, 1); 
+receivedData(1:2:numBits) = demodI; % Odd bits
+receivedData(2:2:numBits) = demodQ; % Even bits
+
+% Calculate BER
+BER = sum(data(1:numBits) ~= receivedData(1:numBits)) / numBits;
+
+% Display results
+disp(['Bit Error Rate (BER): ', num2str(BER)]);
