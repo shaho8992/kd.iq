@@ -128,3 +128,25 @@ title("3f(t - 1) - 4f(t + 2)");
 xlabel("t"); ylabel("Amplitude"); grid on;
 
 ---------------------------------------------------------------------------------------------
+clc;
+clear ;
+close all;
+
+t = -2 : 0.01 : 2;
+f = zeros(size(t));
+
+f( t >=  -1 & t < 0) = 5 * (t(t >= -1 & t < 0) + 1);
+f( t >=  0 & t <= 1) = 5 * (1 - t(t >= 0 & t <= 1));
+plot(t, f, 'b', 'linewidth', 2);
+hold on;
+
+plot(6 * t, f, 'b', 'linewidth', 2);
+hold on;
+
+plot(t + 2, -1 * f, 'b', 'linewidth', 2);
+hold on;
+
+xlabel('t');
+ylabel('f(t)');
+title("Triangle Function");
+grid on;
